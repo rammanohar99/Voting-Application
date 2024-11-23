@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Voting App</title>
+    <link rel="stylesheet" href="admin-dashboard.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>Voting App</h1>
+        </div>
+        <nav>
+            <ul class="nav-links" id="nav-links">
+                <!-- These links will be conditionally shown/hidden based on admin status -->
+                <!-- <li><a href="index.html">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Voting</a></li>
+                <li><a href="#">Contact</a></li> -->
+            </ul>
+            <ul class="auth-links" id="auth-links">
+                <!-- Logout button will be visible only for admin -->
+                <li><button class="logout-btn" onclick="logout()">Logout</button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="dashboard-container">
+        <h2>Admin Dashboard</h2>
+
+        <button class="create-poll-btn" onclick="showCreatePollForm()">Create New Poll</button>
+
+        <div id="pollForm" style="display: none;">
+            <h3>Create Poll</h3>
+            <form id="createPoll" onsubmit="createPoll(event)">
+                <input type="text" id="pollTitle" placeholder="Poll Title" required>
+                <textarea id="pollOptions" placeholder="Enter options separated by commas" required></textarea>
+                <button type="submit">Submit Poll</button>
+                <button type="button" onclick="hideCreatePollForm()">Cancel</button>
+            </form>
+        </div>
+
+        <h3>Existing Polls</h3>
+        <table class="poll-table">
+            <thead>
+                <tr>
+                    <th>Poll Title</th>
+                    <th>Options</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="pollsList">
+                <!-- Existing polls will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Voting App. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Function to show the create poll form
+        function showCreatePollForm() {
+            document.getElementById('pollForm').style.display = 'block';
+        }
+
+        // Function to hide the create poll form
+        function hideCreatePollForm() {
+            document.getElementById('pollForm').style.display = 'none';
+        }
+
+        // Function to create a new poll
+        function createPoll(event) {
+            event.preventDefault(); // Prevent form submission
+
+            const title = document.getElementById('pollTitle').value;
+            const options = document.getElementById('pollOptions').value.split(',').map(option => option.trim());
+
+            // Send poll data to the backend
+            fetch('/create-poll', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ title, options }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Clear input fields
+                    document.getElementById('pollTitle').value = '';
+                    document.getElementById('pollOptions').value = '';
+
+                    // Append new poll to the table
+                    const pollsList = document.getElementById('pollsList');
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td>${title}</td>
+                        <td>${options.join(', ')}</td>
+                        <td>
+                            <button onclick="editPoll(${data.pollId})">Edit</button>
+                            <button onclick="deletePoll(${data.pollId})">Delete</button>
+                        </td>
+                    `;
+                    pollsList.appendChild(newRow);
+
+                    // Hide the form after submission
+                    hideCreatePollForm();
+                } else {
+                    alert('Error creating poll.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to create poll.');
+            });
+        }
+
+        // Function to edit a poll (placeholder)
+        function editPoll(pollId) {
+            alert(`Edit functionality for poll ID ${pollId} is not implemented yet.`);
+        }
+
+        // Function to delete a poll
+        function deletePoll(pollId) {
+            fetch(`/delete-poll/${pollId}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Poll deleted successfully!');
+                    loadPolls(); // Reload the polls list
+                } else {
+                    alert('Failed to delete poll.');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting poll:', error);
+            });
+        }
+
+        // Logout function
+        function logout() {
+            window.location.href = "index.html"; // Redirect to home after logout
+        }
+
+        // Check if user is an admin and update the UI
+        window.onload = function() {
+            // This should be a check to your backend session (admin status)
+            fetch('/is-admin')
+            .then(response => response.json())
+            .then(data => {
+                const isAdmin = data.isAdmin;
+
+                if (isAdmin) {
+                    // Hide non-admin links and show logout button
+                    document.getElementById('nav-links').style.display = 'none';
+                    document.getElementById('auth-links').style.display = 'block';
+                    loadPolls(); // Load the existing polls for admin
+                } else {
+                    // Show normal navigation
+                    document.getElementById('nav-links').style.display = 'block';
+                    document.getElementById('auth-links').style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error checking admin status:', error);
+            });
+        }
+
+        // Load the existing polls
+        function loadPolls() {
+            fetch('/get-polls')
+            .then(response => response.json())
+            .then(data => {
+                const pollsList = document.getElementById('pollsList');
+                pollsList.innerHTML = ''; // Clear existing polls
+
+                data.polls.forEach(poll => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${poll.title}</td>
+                        <td>${poll.options.join(', ')}</td>
+                        <td>
+                            <button onclick="editPoll(${poll.id})">Edit</button>
+                            <button onclick="deletePoll(${poll.id})">Delete</button>
+                        </td>
+                    `;
+                    pollsList.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading polls:', error);
+            });
+        }
+
+        // Load polls when the page loads
+    window.onload = function() {
+        fetch('/is-admin')
+            .then(response => response.json())
+            .then(data => {
+                if (data.isAdmin) {
+                    document.getElementById('auth-links').style.display = 'block';
+                    loadPolls();
+                } else {
+                    document.getElementById('auth-links').style.display = 'none';
+                    alert('Access denied. Admins only.');
+                    window.location.href = '/'; // Redirect to home
+                }
+            })
+            .catch(error => console.error('Error checking admin status:', error));
+    };
+
+    function loadPolls() {
+        fetch('/get-polls')
+            .then(response => response.json())
+            .then(data => {
+                const pollsList = document.getElementById('pollsList');
+                pollsList.innerHTML = ''; // Clear current list
+
+                data.polls.forEach(poll => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${poll.title}</td>
+                        <td>${poll.options.join(', ')}</td>
+                        <td>
+                            <button onclick="editPoll(${poll.id})">Edit</button>
+                            <button onclick="deletePoll(${poll.id})">Delete</button>
+                        </td>
+                    `;
+                    pollsList.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error loading polls:', error));
+    }
+    </script>
+</body>
+</html>

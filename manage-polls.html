@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Polls</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>Manage Polls</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="admin-dashboard.html">Dashboard</a></li>
+                <li><a href="create-poll.html">Create Poll</a></li>
+                <li><a href="manage-polls.html">Manage Polls</a></li>
+                <li><a href="logout.html">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="manage-polls-section">
+            <h2>Existing Polls</h2>
+            <ul id="pollList">
+                <!-- Polls will be listed here -->
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 Voting App - Admin Panel</p>
+    </footer>
+
+    <script>
+        // Example list of polls (could be fetched from a server)
+        const polls = [
+            { title: 'Best Programming Language', options: ['JavaScript', 'Python', 'Java'] },
+            { title: 'Favorite Sports', options: ['Soccer', 'Basketball', 'Tennis'] }
+        ];
+
+        const pollList = document.getElementById('pollList');
+        polls.forEach(poll => {
+            const pollItem = document.createElement('li');
+            pollItem.textContent = `${poll.title} - Options: ${poll.options.join(', ')}`;
+            pollList.appendChild(pollItem);
+        });
+    </script>
+</body>
+</html>

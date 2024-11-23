@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>Voting App</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="voting.html">Voting</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="voting-section">
+        <h2>Cast Your Vote</h2>
+        <div id="not-logged-in">
+            <p>You must be logged in to view and participate in polls.</p>
+            <p>
+                <a href="login.html" class="login-button">Login</a>
+                or
+                <a href="register.html" class="register-button">Register</a>
+                to get started!
+            </p>
+        </div>
+        <div id="polls" class="hidden">
+            <!-- Polls will be dynamically loaded here if the user is logged in -->
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Voting App. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

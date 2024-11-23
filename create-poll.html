@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Poll</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>Create Poll</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="admin-dashboard.html">Dashboard</a></li>
+                <li><a href="create-poll.html">Create Poll</a></li>
+                <li><a href="manage-polls.html">Manage Polls</a></li>
+                <li><a href="logout.html">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="create-poll-section">
+            <h2>Create a New Poll</h2>
+            <form id="createPollForm">
+                <input type="text" id="pollTitle" placeholder="Poll Title" required>
+                <textarea id="pollOptions" placeholder="Enter options separated by commas" required></textarea>
+                <button type="submit">Create Poll</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 Voting App - Admin Panel</p>
+    </footer>
+
+    <script>
+        // Simple logic to create a poll
+        document.getElementById('createPollForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const pollTitle = document.getElementById('pollTitle').value;
+            const pollOptions = document.getElementById('pollOptions').value.split(',');
+
+            // You can handle poll data creation here, for example, sending to the backend.
+            console.log("Poll Created: ", { title: pollTitle, options: pollOptions });
+            alert('Poll created successfully!');
+        });
+    </script>
+</body>
+</html>

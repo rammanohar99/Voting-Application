@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vote - Voting App</title>
+    <link rel="stylesheet" href="vote.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>Voting App</h1>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="vote.html">Voting</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><button class="logout-btn" onclick="logout()">Logout</button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="vote-container">
+        <h2>Vote on Polls</h2>
+        <div id="pollsList">
+            <!-- Polls will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Voting App. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Get userId from session/localStorage (or replace this with actual session logic)
+        const userId = 1;  // Replace with the correct user ID dynamically
+
+        // Fetch polls from the server
+        function fetchPolls() {
+            fetch('/vote')  // Change this to the correct endpoint
+                .then(response => response.json())
+                .then(data => {
+                    const pollsList = document.getElementById('pollsList');
+                    pollsList.innerHTML = ''; // Clear existing polls
+
+                    if (data.polls && data.polls.length === 0) {
+                        pollsList.innerHTML = '<p>No polls available at the moment.</p>';
+                    } else {
+                        data.polls.forEach(poll => {
+                            const pollDiv = document.createElement('div');
+                            pollDiv.className = 'poll';
+                            pollDiv.innerHTML = `
+                                <h3>${poll.title}</h3>
+                                <form onsubmit="castVote(event, ${poll.id})">
+                                    ${poll.options.map((option, index) => `
+                                        <div>
+                                            <input type="radio" name="option" value="${option}" id="poll${poll.id}option${index}" required>
+                                            <label for="poll${poll.id}option${index}">${option}</label>
+                                        </div>
+                                    `).join('')}
+                                    <button type="submit">Vote</button>
+                                </form>
+                            `;
+                            pollsList.appendChild(pollDiv);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching polls:', error);
+                });
+        }
+
+        // Function to handle voting
+        function castVote(event, pollId) {
+            event.preventDefault(); // Prevent form submission
+
+            const selectedOption = event.target.option.value;
+            alert(`Thank you for voting! You selected: ${selectedOption}`);
+
+            // Send the vote to the server
+            fetch(`/vote/${pollId}`, {  // Ensure this endpoint exists in your server.js
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId,               // Send the userId along with the vote
+                    selectedOption
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Vote recorded successfully!');
+                } else {
+                    alert('Failed to record vote. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error recording vote:', error);
+            });
+        }
+
+
+
+        // Logout function
+        function logout() {
+            window.location.href = "index.html";
+        }
+
+        // Fetch polls on page load
+        window.onload = fetchPolls;
+    </script>
+</body>
+</html>
